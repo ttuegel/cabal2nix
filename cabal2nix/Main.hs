@@ -4,22 +4,37 @@
 
 module Main ( main ) where
 
+import qualified Data.ByteString.Short as BS
 import Data.List
 import Data.Map ( Map )
 import qualified Data.Map as Map
 import Data.Maybe
+import Data.Word
 import Distribution.Compiler
-import Distribution.ModuleName ( ModuleName )
+import qualified Distribution.License as Old
+import Distribution.ModuleName hiding ( main )
 import Distribution.Package
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parsec
+import Distribution.SPDX.License
+import Distribution.SPDX.LicenseExceptionId
+import Distribution.SPDX.LicenseExpression
+import Distribution.SPDX.LicenseId
+import Distribution.SPDX.LicenseReference
 import Distribution.System
 import Distribution.Text
-import Distribution.Utils.ShortText
+import Distribution.Types.CondTree
+import Distribution.Types.ExeDependency
+import Distribution.Types.ExecutableScope
+import Distribution.Types.ForeignLib
+import Distribution.Types.ForeignLibOption
+import Distribution.Types.ForeignLibType
+import Distribution.Types.IncludeRenaming
 import Distribution.Types.LegacyExeDependency
+import Distribution.Types.Mixin
 import Distribution.Types.PkgconfigDependency
 import Distribution.Types.UnqualComponentName
-import Distribution.Types.CondTree
+import Distribution.Utils.ShortText
 import Distribution.Verbosity
 import Distribution.Version
 import GHC.Generics ( Generic )
@@ -27,6 +42,7 @@ import Language.Haskell.Extension
 import System.Environment
 import System.IO.Unsafe
 import Text.PrettyPrint hiding ( (<>) )
+import Text.PrettyPrint.GenericPretty
 import Text.Show.Pretty
 
 data Component = Lib | Exe String | Test String
@@ -106,9 +122,9 @@ cabalConf (COr c1 c2)  = cOr (cabalConf c1) (cabalConf c2)
 
 main :: IO ()
 main = do [fpath] <- getArgs
-          gpd <- readGenericPackageDescription undefined fpath
-          let binfo = gdp2binfo gpd
-          putStrLn (dumpStr binfo)
+          gpd <- readGenericPackageDescription verbose fpath
+          -- let binfo = gdp2binfo gpd
+          pp gpd
 
 instance PrettyVal Component where
 instance PrettyVal BInfo where
@@ -152,3 +168,72 @@ ppConfVar (Impl c v)       = text "impl" <> parens (disp c <+> disp v)
 
 ppFlagName :: FlagName -> Doc
 ppFlagName = text . unFlagName
+
+
+instance Out GenericPackageDescription
+instance (Out a, Out b, Out c) => Out (CondTree a b c)
+instance (Out a, Out b, Out c) => Out (CondBranch a b c)
+instance Out a => Out (Condition a)
+instance Out PackageDescription
+instance Out Version
+instance Out VersionRange
+instance Out PackageIdentifier
+instance Out PackageName
+instance Out ShortText
+instance Out Old.License
+instance Out License
+instance Out LicenseExpression
+instance Out SimpleLicenseExpression
+instance Out LicenseId
+instance Out LicenseRef
+instance Out LicenseExceptionId
+instance Out CompilerFlavor
+instance Out SourceRepo
+instance Out RepoKind
+instance Out RepoType
+instance Out Dependency
+instance Out BuildType
+instance Out SetupBuildInfo
+instance Out Library
+instance Out UnqualComponentName
+instance Out ModuleReexport
+instance Out BuildInfo
+instance Out LegacyExeDependency
+instance Out ExeDependency
+instance Out PkgconfigDependency
+instance Out PkgconfigName
+instance Out Language
+instance Out Extension
+instance Out KnownExtension
+instance Out Mixin
+instance Out IncludeRenaming
+instance Out ModuleRenaming
+instance Out Executable
+instance Out ExecutableScope
+instance Out ForeignLib
+instance Out ForeignLibType
+instance Out ForeignLibOption
+instance Out LibVersionInfo
+instance Out TestSuite
+instance Out TestSuiteInterface
+instance Out TestType
+instance Out Benchmark
+instance Out BenchmarkInterface
+instance Out BenchmarkType
+instance Out Flag
+instance Out FlagName
+instance Out ConfVar
+instance Out OS
+instance Out Arch
+
+instance Out ModuleName where
+  docPrec _ = doc
+  doc x = text "ModuleName" <+> doc (components x)
+
+instance Out BS.ShortByteString where
+  docPrec i = docPrec i . decodeStringUtf8 . BS.unpack
+  doc = doc . decodeStringUtf8 . BS.unpack
+
+instance Out Word64 where
+  docPrec i = docPrec i . toInteger
+  doc = doc . toInteger
