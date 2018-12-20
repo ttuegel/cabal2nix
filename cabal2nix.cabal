@@ -101,7 +101,6 @@ library
                       Distribution.Nixpkgs.Haskell.FromCabal.License
                       Distribution.Nixpkgs.Haskell.FromCabal.Name
                       Distribution.Nixpkgs.Haskell.FromCabal.Normalize
-                      Distribution.Nixpkgs.Haskell.FromCabal.PostProcess
                       Distribution.Nixpkgs.Haskell.Hackage
                       Distribution.Nixpkgs.Haskell.OrphanInstances
                       Distribution.Nixpkgs.Haskell.PackageSourceSpec

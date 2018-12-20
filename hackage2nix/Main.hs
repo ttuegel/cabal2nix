@@ -30,7 +30,7 @@ import Distribution.Nixpkgs.Haskell.FromCabal.Flags
 import Distribution.Nixpkgs.Meta
 import Distribution.Nixpkgs.PackageMap
 import Distribution.Package
-import Distribution.PackageDescription hiding ( options, buildDepends, extraLibs, buildTools, homepage )
+import Distribution.PackageDescription (FlagAssignment)
 import Distribution.System
 import Distribution.Text
 import Distribution.Version

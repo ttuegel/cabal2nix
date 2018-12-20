@@ -22,7 +22,6 @@ mkDerivation {
     streaming-commons temporary text time transformers utf8-string wai
     wai-conduit warp warp-tls
   ];
-  doCheck = false;
   homepage = "http://www.yesodweb.com/book/http-conduit";
   description = "HTTP client package with conduit interface and HTTPS support";
   license = stdenv.lib.licenses.bsd3;

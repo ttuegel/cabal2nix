@@ -17,7 +17,6 @@ import Distribution.Nixpkgs.Haskell.Constraint
 import Distribution.Nixpkgs.Haskell.FromCabal.License
 import Distribution.Nixpkgs.Haskell.FromCabal.Name
 import Distribution.Nixpkgs.Haskell.FromCabal.Normalize
-import Distribution.Nixpkgs.Haskell.FromCabal.PostProcess (postProcess)
 import qualified Distribution.Nixpkgs.License as Nix
 import qualified Distribution.Nixpkgs.Meta as Nix
 import Distribution.Package
@@ -74,7 +73,7 @@ finalizeGenericPackageDescription haskellResolver arch compiler flags constraint
     Right (d,_)  -> (d,[])
 
 fromPackageDescription :: HaskellResolver -> NixpkgsResolver -> [Dependency] -> FlagAssignment -> PackageDescription -> Derivation
-fromPackageDescription haskellResolver nixpkgsResolver missingDeps flags PackageDescription {..} = normalize $ postProcess $ nullDerivation
+fromPackageDescription haskellResolver nixpkgsResolver missingDeps flags PackageDescription {..} = normalize $ nullDerivation
     & isLibrary .~ isJust library
     & pkgid .~ package
     & revision .~ xrev
@@ -125,10 +124,7 @@ fromPackageDescription haskellResolver nixpkgsResolver missingDeps flags Package
     -- derivation 'foo' as 'pkgs.foo', because they live in the 'haskellPackages'
     -- name space -- not on the top level. Therefore, we built our Nixpkgs lookup
     -- function so that top level names are returned as 'pkgs.foo'. As a result, we
-    -- end up pre-pending that path to all kinds of names all over the place. I
-    -- suppose the correct approach would be to assume that the lookup function
-    -- returns names that live in the top-level and to adapt the code in
-    -- PostProcess.hs et all to that fact.
+    -- end up pre-pending that path to all kinds of names all over the place.
     goodScopes :: Set [Identifier]
     goodScopes = Set.fromList (map ("pkgs":) [[], ["xorg"], ["xlibs"], ["gnome2"], ["gnome"], ["gnome3"], ["kde4"]])
 

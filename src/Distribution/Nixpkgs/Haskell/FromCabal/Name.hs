@@ -17,8 +17,6 @@ toNixName n  = fromString (unPackageName n)
 --
 -- TODO: This list should not be hard-coded here; it belongs into the Nixpkgs
 --       repository.
---
--- TODO: Re-use hook matching system from PostProcess.hs here.
 
 libNixName :: String -> [Identifier]
 libNixName ""                                   = []

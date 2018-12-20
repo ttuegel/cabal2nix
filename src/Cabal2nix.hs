@@ -24,7 +24,6 @@ import Distribution.Nixpkgs.Fetch
 import Distribution.Nixpkgs.Haskell
 import Distribution.Nixpkgs.Haskell.FromCabal
 import Distribution.Nixpkgs.Haskell.FromCabal.Flags
-import qualified Distribution.Nixpkgs.Haskell.FromCabal.PostProcess as PP (pkg)
 import qualified Distribution.Nixpkgs.Haskell.Hackage as DB
 import Distribution.Nixpkgs.Haskell.PackageSourceSpec
 import Distribution.Nixpkgs.Meta
@@ -183,10 +182,6 @@ main :: IO ()
 main = bracket (return ()) (\() -> hFlush stdout >> hFlush stderr) $ \() ->
   cabal2nix =<< getArgs
 
-hpackOverrides :: Derivation -> Derivation
-hpackOverrides = over phaseOverrides (++ "preConfigure = \"hpack\";")
-               . set (libraryDepends . tool . contains (PP.pkg "hpack")) True
-
 cabal2nix' :: Options -> IO (Either Doc Derivation)
 cabal2nix' opts@Options{..} = do
   pkg <- getPackage optHpack optFetchSubmodules optHackageDb optHackageSnapshot $
@@ -204,14 +199,11 @@ cabal2nixWithDB db opts@Options{..} = do
 processPackage :: Options -> Package -> IO (Either Doc Derivation)
 processPackage Options{..} pkg = do
   let
-      withHpackOverrides :: Derivation -> Derivation
-      withHpackOverrides = if pkgRanHpack pkg then hpackOverrides else id
-
       flags :: FlagAssignment
       flags = configureCabalFlags (packageId (pkgCabal pkg)) `mappend` readFlagList optFlags
 
       deriv :: Derivation
-      deriv = withHpackOverrides $ fromGenericPackageDescription (const True)
+      deriv = fromGenericPackageDescription (const True)
                                             optNixpkgsIdentifier
                                             optSystem
                                             (unknownCompilerInfo optCompiler NoAbiTag)
